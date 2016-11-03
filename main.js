@@ -1,6 +1,4 @@
-
 var gl;
-var points;
 
 window.onload = function init()
 {
@@ -9,9 +7,13 @@ window.onload = function init()
     gl = WebGLUtils.setupWebGL( canvas );
     if ( !gl ) { alert( "WebGL isn't available" ); }
 
+    var model = new VoxelGrid();
+    var vertices = [];
+
     //
     //  Configure WebGL
     //
+
     gl.viewport( 0, 0, canvas.width, canvas.height );
     gl.clearColor( 0.0, 0.0, 0.0, 1.0 );
 
@@ -21,8 +23,6 @@ window.onload = function init()
     gl.useProgram( program );
 
     // Load the data into the GPU
-
-    var vertices = [];
 
     var bufferId = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, bufferId );
