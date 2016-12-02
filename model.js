@@ -24,7 +24,7 @@ function VoxelGrid() {
         for (var j = 0; j < 10; j++) {
             this.data[i].push(new Array());
             for (var k = 0; k < 10; k++) {
-                this.data[i][j].push(new Voxel(0, 0, 0));
+                this.data[i][j][k].push(new Voxel(0, 0, 0));
             }
         }
     }
