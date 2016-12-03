@@ -3,21 +3,21 @@ function Voxel(red, green, blue) {
     this.red = red;
     this.green = green;
     this.blue = blue;
+};
 
-    this.setColor = function(red, green, blue) {
-        this.red = red;
-        this.green = green;
-        this.blue = blue;
-    };
+Voxel.prototype.setColor = function(red, green, blue) {
+    this.red = red;
+    this.green = green;
+    this.blue = blue;
+};
 
-    this.toggle = function() {
-        this.state = !this.state;
-    };
+Voxel.prototype.toggle = function() {
+    this.state = !this.state;
 };
 
 function VoxelGrid() {
     this.data = new Array();
-    this.voxelScale = 15.0;
+    this.voxelScale = 1.0;
     this.colorScale = 255;
     this.requiresCacheUpdate = false;
 
@@ -37,114 +37,99 @@ function VoxelGrid() {
         }
     }
 
-    this.placeVoxel = function(x, y, z, r, g, b) {
-        var currentVoxel = this.data[x][y][z];
-        currentVoxel.red = r;
-        currentVoxel.green = g;
-        currentVoxel.blue = b;
-        currentVoxel.state = true;
+};
 
-        this.requiresCacheUpdate = true;
-    };
+VoxelGrid.prototype.placeVoxel = function(x, y, z, r, g, b) {
+    var currentVoxel = this.data[x][y][z];
+    currentVoxel.red = r;
+    currentVoxel.green = g;
+    currentVoxel.blue = b;
+    currentVoxel.state = true;
 
-    this.serialize = function() {
-        return "Serialization not yet implemented";
-    };
+    this.requiresCacheUpdate = true;
+};
 
-    this.quad = function(a, b, c, d, xoff, yoff, zoff) {
-        var quadPoints = [];
+VoxelGrid.prototype.serialize = function() {
+    return "Serialization not yet implemented";
+};
 
-        console.log("happyery3");
-        console.log(quadPoints);
+VoxelGrid.prototype.quad = function(a, b, c, d, xoff, yoff, zoff) {
+    var quadPoints = [];
 
-        var vertices = [
-            vec4( -0.5, -0.5,  0.5, 1.0 ),
-            vec4( -0.5,  0.5,  0.5, 1.0 ),
-            vec4(  0.5,  0.5,  0.5, 1.0 ),
-            vec4(  0.5, -0.5,  0.5, 1.0 ),
-            vec4( -0.5, -0.5, -0.5, 1.0 ),
-            vec4( -0.5,  0.5, -0.5, 1.0 ),
-            vec4(  0.5,  0.5, -0.5, 1.0 ),
-            vec4(  0.5, -0.5, -0.5, 1.0 )
-        ];
+    var quadVertices = [
+        vec4( -0.5, -0.5,  0.5, 1.0 ),
+        vec4( -0.5,  0.5,  0.5, 1.0 ),
+        vec4(  0.5,  0.5,  0.5, 1.0 ),
+        vec4(  0.5, -0.5,  0.5, 1.0 ),
+        vec4( -0.5, -0.5, -0.5, 1.0 ),
+        vec4( -0.5,  0.5, -0.5, 1.0 ),
+        vec4(  0.5,  0.5, -0.5, 1.0 ),
+        vec4(  0.5, -0.5, -0.5, 1.0 )
+    ];
 
-        console.log("happyery2");
-        console.log(quadPoints);
+    for (var i = 0; i < quadVertices.length; i++) {
+        quadVertices[i][0] += xoff;
+        quadVertices[i][1] += yoff;
+        quadVertices[i][2] += zoff;
+    }
 
-        for (var i = 0; i < vertices.length; i++) {
-            vertices[i][0] += xoff;
-            vertices[i][1] += yoff;
-            vertices[i][2] += zoff;
-        }
+    var indices = [ a, b, c, a, c, d ];
 
-        var indices = [ a, b, c, a, c, d ];
+    for (var j = 0; j < indices.length; j++) {
+        quadPoints.push( quadVertices[indices[j]] );
+    }
 
-        for (var i = 0; i < indices.length; i++) {
-            quadPoints.push( vertices[indices[i]] );
-        }
+    return quadPoints;
+};
 
-        console.log("happyery");
-        console.log(quadPoints);
+VoxelGrid.prototype.scalePoint = function(pt) {
+    return vec3(pt[0] / this.voxelScale, pt[1] / this.voxelScale, pt[2] / this.voxelScale);
+};
 
-        return quadPoints;
-    };
+VoxelGrid.prototype.calcCubeTriangles = function(voxel, x, y, z) {
+    var xoff = x;
+    var yoff = y;
+    var zoff = z;
+    var dataPoints = [];
 
-    this.scalePoint = function(pt) {
-        return vec3(pt[0] / this.voxelScale, pt[1] / this.voxelScale, pt[2] / this.voxelScale);
-    };
+    dataPoints = dataPoints.concat(this.quad( 1, 0, 3, 2, xoff, yoff, zoff));
+    dataPoints = dataPoints.concat(this.quad( 2, 3, 7, 6, xoff, yoff, zoff));
+    dataPoints = dataPoints.concat(this.quad( 3, 0, 4, 7, xoff, yoff, zoff));
+    dataPoints = dataPoints.concat(this.quad( 6, 5, 1, 2, xoff, yoff, zoff));
+    dataPoints = dataPoints.concat(this.quad( 4, 5, 6, 7, xoff, yoff, zoff));
+    dataPoints = dataPoints.concat(this.quad( 5, 4, 0, 1, xoff, yoff, zoff));
 
-    this.calcCubeTriangles = function(voxel, x, y, z) {
-        var xoff = x;
-        var yoff = y;
-        var zoff = z;
-        var dataPoints = [];
+    for (var i = 0; i < dataPoints.length; i++) {
+        dataPoints[i] = this.scalePoint(dataPoints[i]);
+    }
 
-        console.log(this.quad( 1, 0, 3, 2, xoff, yoff, zoff));
-        var happy = this.quad( 1, 0, 3, 2, xoff, yoff, zoff);
-        console.log(happy);
-        dataPoints = happy;
-        console.log(dataPoints);
-        /*
-        points = points.concat(this.quad( 2, 3, 7, 6, xoff, yoff, zoff));
-        points = points.concat(this.quad( 3, 0, 4, 7, xoff, yoff, zoff));
-        points = points.concat(this.quad( 6, 5, 1, 2, xoff, yoff, zoff));
-        points = points.concat(this.quad( 4, 5, 6, 7, xoff, yoff, zoff));
-        points = points.concat(this.quad( 5, 4, 0, 1, xoff, yoff, zoff));
-        */
+    return dataPoints;
+};
 
-        for (var i = 0; i < dataPoints.length; i++) {
-            dataPoints[i] = this.scalePoint(dataPoints[i]);
-        }
+VoxelGrid.prototype.to3DPoints = function() {
+    if (this.requiresCacheUpdate) {
+        for (var i = 0; i < 10; i++) {
+            for (var j = 0; j < 10; j++) {
+                for (var k = 0; k < 10; k++) {
+                    var currentVoxel = this.data[i][j][k];
+                    if (currentVoxel.state) {
+                        //Write out the triangles that make up the voxel at that point
+                        this.cache.positions = this.cache.positions.concat(this.calcCubeTriangles(currentVoxel, i, j, k));
 
-        return dataPoints;
-    };
+                        //TODO: Figure out how many times to add the color to the colors array in order for all of the triangles in a voxel to be the same color
+                        //         I think that it is one per triangle (12 triangles)
+                        var newR = currentVoxel.r / this.colorScale;
+                        var newG = currentVoxel.g / this.colorScale;
+                        var newB = currentVoxel.b / this.colorScale;
 
-    this.to3DPoints = function() {
-        if (this.requiresCacheUpdate) {
-            for (var i = 0; i < 10; i++) {
-                for (var j = 0; j < 10; j++) {
-                    for (var k = 0; k < 10; k++) {
-                        var currentVoxel = this.data[i][j][k];
-                        if (currentVoxel.state) {
-                            //Write out the triangles that make up the voxel at that point
-                            this.cache.positions.concat(this.calcCubeTriangles(currentVoxel, i, j, k));
-
-                            //TODO: Figure out how many times to add the color to the colors array in order for all of the triangles in a voxel to be the same color
-                            //         I think that it is one per triangle (12 triangles)
-                            var newR = currentVoxel.r / this.colorScale;
-                            var newG = currentVoxel.g / this.colorScale;
-                            var newB = currentVoxel.b / this.colorScale;
-
-                            for (var times = 0; times < 12; times++) {
-                                this.cache.colors.push(currentVoxel.r / this.colorScale, currentVoxel.g / this.colorScale, currentVoxel.b / this.colorScale);
-                            }
+                        for (var times = 0; times < 12; times++) {
+                            this.cache.colors.push(currentVoxel.r / this.colorScale, currentVoxel.g / this.colorScale, currentVoxel.b / this.colorScale);
                         }
                     }
                 }
             }
-            this.requiresCacheUpdate = false;
         }
-        return this.cache;
-    };
+        this.requiresCacheUpdate = false;
+    }
+    return this.cache;
 };
-

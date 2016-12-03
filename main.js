@@ -9,14 +9,12 @@ window.onload = function init()
 
     var model = new VoxelGrid();
     model.placeVoxel(0, 0, 0, 50, 50, 50);
-    model.placeVoxel(5, 5, 5, 200, 200, 200);
+    //model.placeVoxel(1, 0, 0, 200, 200, 200);
 
     var vertices = [];
     vertices = model.to3DPoints().positions;
 
-    for (vertex in vertices) {
-        console.log(vertex);
-    }
+    console.log(JSON.stringify(vertices));
 
     //
     //  Configure WebGL
