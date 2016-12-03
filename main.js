@@ -8,7 +8,15 @@ window.onload = function init()
     if ( !gl ) { alert( "WebGL isn't available" ); }
 
     var model = new VoxelGrid();
+    model.placeVoxel(0, 0, 0, 50, 50, 50);
+    model.placeVoxel(5, 5, 5, 200, 200, 200);
+
     var vertices = [];
+    vertices = model.to3DPoints().positions;
+
+    for (vertex in vertices) {
+        console.log(vertex);
+    }
 
     //
     //  Configure WebGL
