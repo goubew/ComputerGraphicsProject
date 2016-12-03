@@ -16,12 +16,10 @@ window.onload = function init()
 
     var model = new VoxelGrid();
     model.placeVoxel(0, 0, 0, 50, 50, 50);
-    //model.placeVoxel(1, 0, 0, 200, 200, 200);
+    model.placeVoxel(1, 0, 0, 200, 200, 200);
 
     var vertices = [];
     vertices = model.to3DPoints().positions;
-
-    console.log(JSON.stringify(vertices));
 
     //
     //  Configure WebGL
@@ -44,7 +42,7 @@ window.onload = function init()
     // Associate out shader variables with our data buffer
 
     var vPosition = gl.getAttribLocation( program, "vPosition" );
-    gl.vertexAttribPointer( vPosition, 2, gl.FLOAT, false, 0, 0 );
+    gl.vertexAttribPointer( vPosition, 4, gl.FLOAT, false, 0, 0 );
     gl.enableVertexAttribArray( vPosition );
 
     d = 0;
@@ -81,7 +79,7 @@ window.onload = function init()
         d += (((x- prevx) * -1) * deg_to_rad);
         p += (((y- prevy) * 1) * deg_to_rad);
 
-        p = Math.max(10*deg_to_rad, Math.min(p, 40* deg_to_rad))
+        p = Math.max(10*deg_to_rad, Math.min(p, 40* deg_to_rad));
 
 
         prevx = x;

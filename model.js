@@ -17,7 +17,7 @@ Voxel.prototype.toggle = function() {
 
 function VoxelGrid() {
     this.data = new Array();
-    this.voxelScale = 1.0;
+    this.voxelScale = 2.0;
     this.colorScale = 255;
     this.requiresCacheUpdate = false;
 
@@ -57,14 +57,14 @@ VoxelGrid.prototype.quad = function(a, b, c, d, xoff, yoff, zoff) {
     var quadPoints = [];
 
     var quadVertices = [
-        vec4( -0.5, -0.5,  0.5, 1.0 ),
-        vec4( -0.5,  0.5,  0.5, 1.0 ),
-        vec4(  0.5,  0.5,  0.5, 1.0 ),
-        vec4(  0.5, -0.5,  0.5, 1.0 ),
-        vec4( -0.5, -0.5, -0.5, 1.0 ),
-        vec4( -0.5,  0.5, -0.5, 1.0 ),
-        vec4(  0.5,  0.5, -0.5, 1.0 ),
-        vec4(  0.5, -0.5, -0.5, 1.0 )
+        vec4( -0.5, -0.5,  0.5, 1.0 ), //up bot-left
+        vec4( -0.5,  0.5,  0.5, 1.0 ), //up top-left
+        vec4(  0.5,  0.5,  0.5, 1.0 ), //up top-right
+        vec4(  0.5, -0.5,  0.5, 1.0 ), //up bot-right
+        vec4( -0.5, -0.5, -0.5, 1.0 ), //down bot-left
+        vec4( -0.5,  0.5, -0.5, 1.0 ), //down top-left
+        vec4(  0.5,  0.5, -0.5, 1.0 ), //down top-right
+        vec4(  0.5, -0.5, -0.5, 1.0 )  //down bot-right
     ];
 
     for (var i = 0; i < quadVertices.length; i++) {
@@ -83,7 +83,7 @@ VoxelGrid.prototype.quad = function(a, b, c, d, xoff, yoff, zoff) {
 };
 
 VoxelGrid.prototype.scalePoint = function(pt) {
-    return vec3(pt[0] / this.voxelScale, pt[1] / this.voxelScale, pt[2] / this.voxelScale);
+    return vec4(pt[0] / this.voxelScale, pt[1] / this.voxelScale, pt[2] / this.voxelScale, 1.0);
 };
 
 VoxelGrid.prototype.calcCubeTriangles = function(voxel, x, y, z) {
@@ -108,6 +108,11 @@ VoxelGrid.prototype.calcCubeTriangles = function(voxel, x, y, z) {
 
 VoxelGrid.prototype.to3DPoints = function() {
     if (this.requiresCacheUpdate) {
+        this.cache = {
+            positions: [],
+            colors:[]
+        };
+
         for (var i = 0; i < 10; i++) {
             for (var j = 0; j < 10; j++) {
                 for (var k = 0; k < 10; k++) {
