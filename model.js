@@ -159,22 +159,22 @@ VoxelGrid.prototype.to3DPoints = function() {
                             var alphaTest = 0;
 
                             if (times < 6) {
-                                alphaTest = 0.1;
+                                alphaTest = 0.75;
                             }
                             else if (times < 12) {
-                                alphaTest = 0.2;
+                                alphaTest = 0.80;
                             }
                             else if (times < 18) {
-                                alphaTest = 0.3;
+                                alphaTest = 0.85;
                             }
                             else if (times < 24) {
-                                alphaTest = 0.3;
+                                alphaTest = 0.90;
                             }
                             else if (times < 30) {
-                                alphaTest = 0.4;
+                                alphaTest = 0.95;
                             }
                             else if (times < 36) {
-                                alphaTest = 0.5;
+                                alphaTest = 1.0;
                             }
 
                             newColor = vec4(newR, newG, newB, alphaTest);
