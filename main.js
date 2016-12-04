@@ -40,8 +40,6 @@ window.onload = function init()
     gl.bindBuffer( gl.ARRAY_BUFFER, bufferId );
     gl.bufferData( gl.ARRAY_BUFFER, flatten(voxelData.positions), gl.STATIC_DRAW );
 
-    // Associate out shader variables with our data buffer
-
     var vPosition = gl.getAttribLocation( program, "vPosition" );
     gl.vertexAttribPointer( vPosition, 4, gl.FLOAT, false, 0, 0 );
     gl.enableVertexAttribArray( vPosition );
@@ -53,6 +51,14 @@ window.onload = function init()
     var vColor = gl.getAttribLocation( program, "vColor" );
     gl.vertexAttribPointer( vColor, 4, gl.FLOAT, false, 0, 0 );
     gl.enableVertexAttribArray( vColor );
+
+    var pickColorBufferId = gl.createBuffer();
+    gl.bindBuffer( gl.ARRAY_BUFFER, pickColorBufferId );
+    gl.bufferData( gl.ARRAY_BUFFER, flatten(voxelData.pickingColors), gl.STATIC_DRAW );
+
+    var vPickColor = gl.getAttribLocation( program, "vPickColor" );
+    gl.vertexAttribPointer( vPickColor, 4, gl.FLOAT, false, 0, 0 );
+    gl.enableVertexAttribArray( vPickColor );
 
     //Enable the depth buffer
     gl.enable(gl.DEPTH_TEST);
@@ -75,16 +81,13 @@ window.onload = function init()
         document.addEventListener("mouseup", doMouseUp, false);
         if (evt.shiftKey) {
             pickRender(voxelData.positions.length, rMatrixLoc, picking, evt.clientX, evt.clientY);
-            //render(voxelData.positions.length, rMatrixLoc, picking);
         }
-        else {
-            dragging = true;
-            document.addEventListener("mousemove", doMouseDrag, false);
-            var box = canvas.getBoundingClientRect();
-            prevx = window.pageXOffset + evt.clientX - box.left;
-            prevy = window.pageYOffset + evt.clientY - box.top;
-            dragCount = 0;
-        }
+        dragging = true;
+        document.addEventListener("mousemove", doMouseDrag, false);
+        var box = canvas.getBoundingClientRect();
+        prevx = window.pageXOffset + evt.clientX - box.left;
+        prevy = window.pageYOffset + evt.clientY - box.top;
+        dragCount = 0;
     }
     function doMouseDrag(evt) {
         if (!dragging)

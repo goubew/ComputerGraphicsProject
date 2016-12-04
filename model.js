@@ -151,9 +151,9 @@ VoxelGrid.prototype.to3DPoints = function() {
 
                         //Add some rgb values equal to the postion of the center of the voxel
                         //This is used when picking voxels to determine the face to add to
-                        newR = i;
-                        newG = j;
-                        newB = k;
+                        newR = i / 10;
+                        newG = j / 10;
+                        newB = k / 10;
 
                         for (times = 0; times < 36; times++) {
                             var alphaTest = 0;
