@@ -15,6 +15,23 @@ window.onload = function init()
 {
     canvas = document.getElementById( "gl-canvas" );
 
+    fileInput.addEventListener('change', function(e) {
+        var file = fileInput.files[0];
+        var textType = /text.*/;
+
+        if (file.type.match(textType)) {
+            var reader = new FileReader();
+
+            reader.onload = function(e) {
+                loadModel(reader.result);
+            }
+
+            reader.readAsText(file);
+        } else {
+            fileDisplayArea.innerText = "File not supported!"
+        }
+    });
+
     gl = WebGLUtils.setupWebGL( canvas );
     if ( !gl ) { alert( "WebGL isn't available" ); }
 
