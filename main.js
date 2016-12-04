@@ -16,11 +16,15 @@ window.onload = function init()
     if ( !gl ) { alert( "WebGL isn't available" ); }
 
     var model = new VoxelGrid();
-    model.placeVoxel(0, 0, 0, 250, 50, 50);
-    model.placeVoxel(1, 0, 0, 200, 200, 200);
+
+    //Place a floor of voxels
+    for (var i1 = 0; i1 < 10; i1++) {
+        for (var j1 = 0; j1 < 10; j1++) {
+            model.placeVoxel(i1, j1, 0, i1/10 * 255, j1/10 * 255, 255);
+        }
+    }
 
     var voxelData = model.to3DPoints();
-    //console.log(JSON.stringify(voxelData));
 
     //
     //  Configure WebGL
@@ -79,15 +83,19 @@ window.onload = function init()
         if (dragging)
            return;
         document.addEventListener("mouseup", doMouseUp, false);
-        if (evt.shiftKey) {
-            pickRender(voxelData.positions.length, rMatrixLoc, picking, evt.clientX, evt.clientY);
-        }
-        dragging = true;
-        document.addEventListener("mousemove", doMouseDrag, false);
+
         var box = canvas.getBoundingClientRect();
         prevx = window.pageXOffset + evt.clientX - box.left;
         prevy = window.pageYOffset + evt.clientY - box.top;
-        dragCount = 0;
+
+        var colx = prevx;
+        var coly = canvas.height - prevy;
+
+        if (evt.shiftKey) {
+            pickRender(voxelData.positions.length, rMatrixLoc, picking, colx, coly);
+        }
+        dragging = true;
+        document.addEventListener("mousemove", doMouseDrag, false);
     }
     function doMouseDrag(evt) {
         if (!dragging)
@@ -99,7 +107,7 @@ window.onload = function init()
         d += (((x- prevx) * -1) * deg_to_rad);
         p += (((y- prevy) * 1) * deg_to_rad);
 
-        p = Math.max(10*deg_to_rad, Math.min(p, 40* deg_to_rad));
+        //p = Math.max(10*deg_to_rad, Math.min(p, 40* deg_to_rad));
 
 
         prevx = x;
@@ -137,7 +145,10 @@ function render(size, rMatrixLoc, picking) {
     gl.clear( gl.COLOR_BUFFER_BIT );
     gl.drawArrays( gl.TRIANGLES, 0, size);
 
-    console.log("render");
+}
+
+function reCalcIndex(color) {
+    return Math.round( (color * 10) / 255 );
 }
 
 function pickRender(size, rMatrixLoc, picking, mouseX, mouseY) {
@@ -150,8 +161,14 @@ function pickRender(size, rMatrixLoc, picking, mouseX, mouseY) {
 
     var color = new Uint8Array(4);
     gl.readPixels(mouseX, mouseY, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, color);
-    console.log(color);
 
-    console.log("Pick Render");
+    var reX = reCalcIndex(color[0]);
+    var reY = reCalcIndex(color[1]);
+    var reZ = reCalcIndex(color[2]);
+    var reFace = reCalcIndex(color[3]);
 
+    // console.log(reX);
+    // console.log(reY);
+    // console.log(reZ);
+    console.log(reFace);
 }

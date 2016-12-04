@@ -17,7 +17,7 @@ Voxel.prototype.toggle = function() {
 
 function VoxelGrid() {
     this.data = new Array();
-    this.voxelScale = 2.0;
+    this.voxelScale = 10.0;
     this.colorScale = 255;
     this.requiresCacheUpdate = false;
 
@@ -159,19 +159,19 @@ VoxelGrid.prototype.to3DPoints = function() {
                             var alphaTest = 0;
 
                             if (times < 6) {
-                                alphaTest = 0.75;
+                                alphaTest = 0.50;
                             }
                             else if (times < 12) {
-                                alphaTest = 0.80;
+                                alphaTest = 0.60;
                             }
                             else if (times < 18) {
-                                alphaTest = 0.85;
+                                alphaTest = 0.70;
                             }
                             else if (times < 24) {
-                                alphaTest = 0.90;
+                                alphaTest = 0.80;
                             }
                             else if (times < 30) {
-                                alphaTest = 0.95;
+                                alphaTest = 0.90;
                             }
                             else if (times < 36) {
                                 alphaTest = 1.0;
