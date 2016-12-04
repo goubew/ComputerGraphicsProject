@@ -72,14 +72,14 @@ window.onload = function init()
     function doMouseDown(evt) {
         if (dragging)
            return;
+        document.addEventListener("mouseup", doMouseUp, false);
         if (evt.shiftKey) {
             pickRender(voxelData.positions.length, rMatrixLoc, picking, evt.clientX, evt.clientY);
-            render(voxelData.positions.length, rMatrixLoc, picking);
+            //render(voxelData.positions.length, rMatrixLoc, picking);
         }
         else {
             dragging = true;
             document.addEventListener("mousemove", doMouseDrag, false);
-            document.addEventListener("mouseup", doMouseUp, false);
             var box = canvas.getBoundingClientRect();
             prevx = window.pageXOffset + evt.clientX - box.left;
             prevy = window.pageYOffset + evt.clientY - box.top;
@@ -150,4 +150,5 @@ function pickRender(size, rMatrixLoc, picking, mouseX, mouseY) {
     console.log(color);
 
     console.log("Pick Render");
+
 }
