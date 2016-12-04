@@ -2,6 +2,9 @@ var gl;
 
 var d, p, r;
 
+var voxelData;
+var model = new VoxelGrid();
+
 var dragging = false;
 var dragCount = 0;
 
@@ -15,8 +18,6 @@ window.onload = function init()
     gl = WebGLUtils.setupWebGL( canvas );
     if ( !gl ) { alert( "WebGL isn't available" ); }
 
-    var model = new VoxelGrid();
-
     //Place a floor of voxels
     for (var i1 = 0; i1 < 10; i1++) {
         for (var j1 = 0; j1 < 10; j1++) {
@@ -24,7 +25,7 @@ window.onload = function init()
         }
     }
 
-    var voxelData = model.to3DPoints();
+    voxelData = model.to3DPoints();
 
     //
     //  Configure WebGL
@@ -40,8 +41,8 @@ window.onload = function init()
 
     // Load the data into the GPU
 
-    var bufferId = gl.createBuffer();
-    gl.bindBuffer( gl.ARRAY_BUFFER, bufferId );
+    var positionBufferId = gl.createBuffer();
+    gl.bindBuffer( gl.ARRAY_BUFFER, positionBufferId );
     gl.bufferData( gl.ARRAY_BUFFER, flatten(voxelData.positions), gl.STATIC_DRAW );
 
     var vPosition = gl.getAttribLocation( program, "vPosition" );
@@ -63,6 +64,12 @@ window.onload = function init()
     var vPickColor = gl.getAttribLocation( program, "vPickColor" );
     gl.vertexAttribPointer( vPickColor, 4, gl.FLOAT, false, 0, 0 );
     gl.enableVertexAttribArray( vPickColor );
+
+    var bufferIds = {
+        positionBufferId: positionBufferId,
+        colorBufferId: colorBufferId,
+        pickColorBufferId: pickColorBufferId
+    };
 
     //Enable the depth buffer
     gl.enable(gl.DEPTH_TEST);
@@ -92,7 +99,7 @@ window.onload = function init()
         var coly = canvas.height - prevy;
 
         if (evt.shiftKey) {
-            pickRender(voxelData.positions.length, rMatrixLoc, picking, colx, coly);
+            pickRender(voxelData.positions.length, rMatrixLoc, picking, colx, coly, bufferIds);
         }
         dragging = true;
         document.addEventListener("mousemove", doMouseDrag, false);
@@ -108,7 +115,6 @@ window.onload = function init()
         p += (((y- prevy) * 1) * deg_to_rad);
 
         //p = Math.max(10*deg_to_rad, Math.min(p, 40* deg_to_rad));
-
 
         prevx = x;
         prevy = y;
@@ -151,7 +157,7 @@ function reCalcIndex(color) {
     return Math.round( (color * 10) / 255 );
 }
 
-function pickRender(size, rMatrixLoc, picking, mouseX, mouseY) {
+function pickRender(size, rMatrixLoc, picking, mouseX, mouseY, bufferIds) {
     sendRotationMatrix(rMatrixLoc);
 
     gl.uniform1i(picking, 1);
@@ -167,8 +173,48 @@ function pickRender(size, rMatrixLoc, picking, mouseX, mouseY) {
     var reZ = reCalcIndex(color[2]);
     var reFace = reCalcIndex(color[3]);
 
-    // console.log(reX);
-    // console.log(reY);
-    // console.log(reZ);
+    console.log(reX);
+    console.log(reY);
+    console.log(reZ);
     console.log(reFace);
+    console.log("-------");
+
+    //Calculate the location for the next voxel
+
+    var newX = reX;
+    var newY = reY;
+    var newZ = reZ;
+
+    if (reFace < 6) {
+        newZ += 1;
+    }
+    else if (reFace < 7) {
+        newX += 1;
+    }
+    else if (reFace < 8) {
+        newY -= 1;
+    }
+    else if (reFace < 9) {
+        newY += 1;
+    }
+    else if (reFace < 10) {
+        newZ -= 1;
+    }
+    else if (reFace < 11) {
+        newX -= 1;
+    }
+
+    //Place the voxel in the world and rebuffer all of the vertices
+    model.placeVoxel(newX, newY, newZ, 1.0, 1.0, 1.0);
+
+    voxelData = model.to3DPoints();
+
+    gl.bindBuffer( gl.ARRAY_BUFFER, bufferIds.positionBufferId );
+    gl.bufferData( gl.ARRAY_BUFFER, flatten(voxelData.positions), gl.STATIC_DRAW );
+
+    gl.bindBuffer( gl.ARRAY_BUFFER, bufferIds.colorBufferId );
+    gl.bufferData( gl.ARRAY_BUFFER, flatten(voxelData.colors), gl.STATIC_DRAW );
+
+    gl.bindBuffer( gl.ARRAY_BUFFER, bufferIds.pickColorBufferId );
+    gl.bufferData( gl.ARRAY_BUFFER, flatten(voxelData.pickingColors), gl.STATIC_DRAW );
 }
