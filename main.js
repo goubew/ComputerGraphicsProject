@@ -3,6 +3,7 @@ var gl;
 var d, p, r;
 
 var dragging = false;
+var dragCount = 0;
 
 var deg_to_rad = Math.PI/180;
 var canvas;
@@ -81,7 +82,7 @@ window.onload = function init()
         var box = canvas.getBoundingClientRect();
         prevx = window.pageXOffset + evt.clientX - box.left;
         prevy = window.pageYOffset + evt.clientY - box.top;
-
+        dragCount = 0;
     }
     function doMouseDrag(evt) {
         if (!dragging)
@@ -98,10 +99,11 @@ window.onload = function init()
 
         prevx = x;
         prevy = y;
-        if (render) {
+        if (render && dragCount % 5 == 0) {
             sendRotationMatrix(rMatrixLoc);
             render(voxelData.positions.length);
         }
+        dragCount += 1;
     }
     function doMouseUp(evt) {
         if (dragging) {
