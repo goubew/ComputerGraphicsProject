@@ -13,7 +13,10 @@ main()
 </script> -->
 <script id="vertex-shader" type="x-shader/x-vertex">
 attribute vec4 vPosition;
+attribute vec4 voxelPos;
 uniform mat4 rMatrix;
+
+uniform bool picking;
 
 varying lowp vec4 vColor;
 
@@ -24,17 +27,25 @@ main()
 
     //vColor = vec4(-gl_Position.z + 0.55, -gl_Position.z, -gl_Position.z + 0.55, 1.0);
 
-    vColor = vec4(0.0, 0.0, 0.0, 1.0);
+    if (picking) {
+        //vColor = vec4(voxelPos.x, voxelPos.y, voxelPos.z, 1.0);
+        vColor = vec4(1.0, 1.0, 1.0, 1.0);
+    }
+    else {
+        vColor = vec4(1.0, 1.0, 1.0, 1.0);
+    }
 }
 </script>
 
 <script id="fragment-shader" type="x-shader/x-fragment">
 precision mediump float;
 
+varying lowp vec4 vColor;
+
 void
 main()
 {
-    gl_FragColor = vec4( 1.0, 1.0, 1.0, 1.0 );
+    gl_FragColor = vColor;//vec4( 1.0, 1.0, 1.0, 1.0 );
 }
 </script>
 

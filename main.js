@@ -19,7 +19,7 @@ window.onload = function init()
     model.placeVoxel(1, 0, 0, 200, 200, 200);
 
     var vertices = [];
-    vertices = model.to3DPoints().positions;
+    vertices = model.to3DPoints();
 
     //
     //  Configure WebGL
@@ -42,14 +42,24 @@ window.onload = function init()
     // Associate out shader variables with our data buffer
 
     var vPosition = gl.getAttribLocation( program, "vPosition" );
-    gl.vertexAttribPointer( vPosition, 4, gl.FLOAT, false, 0, 0 );
+    gl.vertexAttribPointer( vPosition, 4, gl.FLOAT, false, 8 * Float32Array.BYTES_PER_ELEMENT, 0 );
     gl.enableVertexAttribArray( vPosition );
+
+    var voxelPos = gl.getAttribLocation( program, "voxelPos" );
+    gl.vertexAttribPointer( voxelPos, 4, gl.FLOAT, false, 8 * Float32Array.BYTES_PER_ELEMENT, 4 );
+    gl.enableVertexAttribArray( voxelPos );
+
+    gl.enable(gl.DEPTH_TEST);
+
 
     d = 0;
     p = 10 * deg_to_rad;
     r = 0;
 
     var rMatrixLoc = gl.getUniformLocation( program, "rMatrix" );
+    var picking = gl.getUniformLocation( program, "picking");
+
+    gl.uniform1i(picking, 1);
 
     canvas.addEventListener("mousedown", doMouseDown, false);
 
@@ -111,7 +121,14 @@ function sendRotationMatrix(rMatrixLoc) {
 }
 
 function render(size) {
+
     gl.clear( gl.COLOR_BUFFER_BIT );
     gl.drawArrays( gl.TRIANGLES, 0, size);
+
+    var color = new Uint8Array(4);
+
+    gl.readPixels(256, 256, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, color);
+
+    console.log(color);
 
 }
