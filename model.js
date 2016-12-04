@@ -108,12 +108,10 @@ VoxelGrid.prototype.calcCubeTriangles = function(voxel, x, y, z) {
 
 VoxelGrid.prototype.to3DPoints = function() {
     if (this.requiresCacheUpdate) {
-        // this.cache = {
-        //     positions: [],
-        //     colors:[]
-        // };
-
-        this.cache = [];
+        this.cache = {
+            positions: [],
+            colors:[]
+        };
 
         for (var i = 0; i < 10; i++) {
             for (var j = 0; j < 10; j++) {
@@ -121,20 +119,17 @@ VoxelGrid.prototype.to3DPoints = function() {
                     var currentVoxel = this.data[i][j][k];
                     if (currentVoxel.state) {
                         //Write out the triangles that make up the voxel at that point
-                        //this.cache.positions = this.cache.positions.concat(this.calcCubeTriangles(currentVoxel, i, j, k));
+                        this.cache.positions = this.cache.positions.concat(this.calcCubeTriangles(currentVoxel, i, j, k));
 
-                        tris = this.calcCubeTriangles(currentVoxel, i, j, k);
-
-                        //TODO: Figure out how many times to add the color to the colors array in order for all of the triangles in a voxel to be the same color
-                        //         I think that it is one per triangle (12 triangles)
                         var newR = currentVoxel.red / this.colorScale;
                         var newG = currentVoxel.green / this.colorScale;
                         var newB = currentVoxel.blue / this.colorScale;
 
+                        var newColor = vec4(newR, newG, newB);
+                        console.log(JSON.stringify(newColor));
+
                         for (var times = 0; times < 36; times++) {
-                            //this.cache.colors.push(currentVoxel.r / this.colorScale, currentVoxel.g / this.colorScale, currentVoxel.b / this.colorScale);
-                            this.cache.push(tris[i]);
-                            this.cache.push(vec4(newR, newG, newB, 1.0));
+                            this.cache.colors.push(newColor);
                         }
                     }
                 }

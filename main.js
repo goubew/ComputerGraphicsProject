@@ -15,11 +15,11 @@ window.onload = function init()
     if ( !gl ) { alert( "WebGL isn't available" ); }
 
     var model = new VoxelGrid();
-    model.placeVoxel(0, 0, 0, 50, 50, 50);
+    model.placeVoxel(0, 0, 0, 250, 50, 50);
     model.placeVoxel(1, 0, 0, 200, 200, 200);
 
-    var vertices = [];
-    vertices = model.to3DPoints();
+    var voxelData = model.to3DPoints();
+    console.log(JSON.stringify(voxelData));
 
     //
     //  Configure WebGL
@@ -37,20 +37,24 @@ window.onload = function init()
 
     var bufferId = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, bufferId );
-    gl.bufferData( gl.ARRAY_BUFFER, flatten(vertices), gl.STATIC_DRAW );
+    gl.bufferData( gl.ARRAY_BUFFER, flatten(voxelData.positions), gl.STATIC_DRAW );
 
     // Associate out shader variables with our data buffer
 
     var vPosition = gl.getAttribLocation( program, "vPosition" );
-    gl.vertexAttribPointer( vPosition, 4, gl.FLOAT, false, 8 * Float32Array.BYTES_PER_ELEMENT, 0 );
+    gl.vertexAttribPointer( vPosition, 4, gl.FLOAT, false, 0, 0 );
     gl.enableVertexAttribArray( vPosition );
 
-    var voxelPos = gl.getAttribLocation( program, "voxelPos" );
-    gl.vertexAttribPointer( voxelPos, 4, gl.FLOAT, false, 8 * Float32Array.BYTES_PER_ELEMENT, 4 );
-    gl.enableVertexAttribArray( voxelPos );
+    var colorBufferId = gl.createBuffer();
+    gl.bindBuffer( gl.ARRAY_BUFFER, colorBufferId );
+    gl.bufferData( gl.ARRAY_BUFFER, flatten(voxelData.colors), gl.STATIC_DRAW );
 
+    var vColor = gl.getAttribLocation( program, "vColor" );
+    gl.vertexAttribPointer( vColor, 4, gl.FLOAT, false, 0, 0 );
+    gl.enableVertexAttribArray( vColor );
+
+    //Enable the depth buffer
     gl.enable(gl.DEPTH_TEST);
-
 
     d = 0;
     p = 10 * deg_to_rad;
@@ -64,7 +68,7 @@ window.onload = function init()
     canvas.addEventListener("mousedown", doMouseDown, false);
 
     sendRotationMatrix(rMatrixLoc);
-    render(vertices.length);
+    render(voxelData.positions.length);
 
 
     /* Event Declarations */
@@ -96,7 +100,7 @@ window.onload = function init()
         prevy = y;
         if (render) {
             sendRotationMatrix(rMatrixLoc);
-            render(vertices.length);
+            render(voxelData.positions.length);
         }
     }
     function doMouseUp(evt) {
@@ -106,7 +110,7 @@ window.onload = function init()
         dragging = false;
         }
         sendRotationMatrix(rMatrixLoc);
-        render(vertices.length);
+        render(voxelData.positions.length);
     }
 };
 
@@ -130,5 +134,4 @@ function render(size) {
     gl.readPixels(256, 256, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, color);
 
     console.log(color);
-
 }
