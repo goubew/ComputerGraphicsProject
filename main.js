@@ -20,7 +20,7 @@ window.onload = function init()
     model.placeVoxel(1, 0, 0, 200, 200, 200);
 
     var voxelData = model.to3DPoints();
-    console.log(JSON.stringify(voxelData));
+    //console.log(JSON.stringify(voxelData));
 
     //
     //  Configure WebGL
@@ -64,25 +64,27 @@ window.onload = function init()
     var rMatrixLoc = gl.getUniformLocation( program, "rMatrix" );
     var picking = gl.getUniformLocation( program, "picking");
 
-    gl.uniform1i(picking, 1);
-
     canvas.addEventListener("mousedown", doMouseDown, false);
 
-    sendRotationMatrix(rMatrixLoc);
-    render(voxelData.positions.length);
-
+    render(voxelData.positions.length, rMatrixLoc, picking);
 
     /* Event Declarations */
     function doMouseDown(evt) {
         if (dragging)
            return;
-        dragging = true;
-        document.addEventListener("mousemove", doMouseDrag, false);
-        document.addEventListener("mouseup", doMouseUp, false);
-        var box = canvas.getBoundingClientRect();
-        prevx = window.pageXOffset + evt.clientX - box.left;
-        prevy = window.pageYOffset + evt.clientY - box.top;
-        dragCount = 0;
+        if (evt.shiftKey) {
+            pickRender(voxelData.positions.length, rMatrixLoc, picking, evt.clientX, evt.clientY);
+            render(voxelData.positions.length, rMatrixLoc, picking);
+        }
+        else {
+            dragging = true;
+            document.addEventListener("mousemove", doMouseDrag, false);
+            document.addEventListener("mouseup", doMouseUp, false);
+            var box = canvas.getBoundingClientRect();
+            prevx = window.pageXOffset + evt.clientX - box.left;
+            prevy = window.pageYOffset + evt.clientY - box.top;
+            dragCount = 0;
+        }
     }
     function doMouseDrag(evt) {
         if (!dragging)
@@ -100,8 +102,7 @@ window.onload = function init()
         prevx = x;
         prevy = y;
         if (render && dragCount % 5 == 0) {
-            sendRotationMatrix(rMatrixLoc);
-            render(voxelData.positions.length);
+            render(voxelData.positions.length, rMatrixLoc, picking);
         }
         dragCount += 1;
     }
@@ -111,8 +112,7 @@ window.onload = function init()
             document.removeEventListener("mouseup", doMouseUp, false);
         dragging = false;
         }
-        sendRotationMatrix(rMatrixLoc);
-        render(voxelData.positions.length);
+        render(voxelData.positions.length, rMatrixLoc, picking);
     }
 };
 
@@ -126,14 +126,28 @@ function sendRotationMatrix(rMatrixLoc) {
     gl.uniformMatrix4fv(rMatrixLoc, false, r_matrix);
 }
 
-function render(size) {
+function render(size, rMatrixLoc, picking) {
+    sendRotationMatrix(rMatrixLoc);
+
+    gl.uniform1i(picking, 0);
+
+    gl.clear( gl.COLOR_BUFFER_BIT );
+    gl.drawArrays( gl.TRIANGLES, 0, size);
+
+    console.log("render");
+}
+
+function pickRender(size, rMatrixLoc, picking, mouseX, mouseY) {
+    sendRotationMatrix(rMatrixLoc);
+
+    gl.uniform1i(picking, 1);
 
     gl.clear( gl.COLOR_BUFFER_BIT );
     gl.drawArrays( gl.TRIANGLES, 0, size);
 
     var color = new Uint8Array(4);
-
-    gl.readPixels(256, 256, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, color);
-
+    gl.readPixels(mouseX, mouseY, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, color);
     console.log(color);
+
+    console.log("Pick Render");
 }

@@ -6,6 +6,7 @@
 attribute vec4 vPosition;
 attribute vec4 vColor;
 uniform mat4 rMatrix;
+uniform bool picking;
 
 varying lowp vec4 fColor;
 
@@ -13,7 +14,13 @@ void
 main()
 {
     gl_Position = rMatrix * vPosition;
-    fColor = vColor;
+
+    if (picking) {
+        fColor = vec4(1.0, 1.0, 1.0, 1.0);
+    }
+    else {
+        fColor = vColor;
+    }
 }
 </script>
 
