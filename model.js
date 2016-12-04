@@ -23,7 +23,8 @@ function VoxelGrid() {
 
     this.cache = {
         positions: [],
-        colors:[]
+        colors: [],
+        pickingColors: []
     };
 
     //Populate the data with empty voxels
@@ -39,14 +40,29 @@ function VoxelGrid() {
 
 };
 
-VoxelGrid.prototype.placeVoxel = function(x, y, z, r, g, b) {
-    var currentVoxel = this.data[x][y][z];
-    currentVoxel.red = r;
-    currentVoxel.green = g;
-    currentVoxel.blue = b;
-    currentVoxel.state = true;
+VoxelGrid.prototype.checkVoxelPosition = function(axis) {
+    return (axis >= 0 && axis < 10);
+};
 
-    this.requiresCacheUpdate = true;
+VoxelGrid.prototype.checkVoxelColor = function(color) {
+    return (color >= 0 && color < 256);
+};
+
+VoxelGrid.prototype.checkVoxelData = function(x, y, z, r, g, b) {
+    return (this.checkVoxelPosition(x) && this.checkVoxelPosition(y) && this.checkVoxelPosition(z) && this.checkVoxelColor(r) && this.checkVoxelColor(g) && this.checkVoxelColor(b));
+};
+
+VoxelGrid.prototype.placeVoxel = function(x, y, z, r, g, b) {
+    //Check to make sure that the voxel can fit within the data
+    if (this.checkVoxelData(x, y, z, r, g, b)) {
+        var currentVoxel = this.data[x][y][z];
+        currentVoxel.red = r;
+        currentVoxel.green = g;
+        currentVoxel.blue = b;
+        currentVoxel.state = true;
+
+        this.requiresCacheUpdate = true;
+    }
 };
 
 VoxelGrid.prototype.serialize = function() {
@@ -110,7 +126,8 @@ VoxelGrid.prototype.to3DPoints = function() {
     if (this.requiresCacheUpdate) {
         this.cache = {
             positions: [],
-            colors:[]
+            colors: [],
+            pickingColors: []
         };
 
         for (var i = 0; i < 10; i++) {
@@ -121,15 +138,47 @@ VoxelGrid.prototype.to3DPoints = function() {
                         //Write out the triangles that make up the voxel at that point
                         this.cache.positions = this.cache.positions.concat(this.calcCubeTriangles(currentVoxel, i, j, k));
 
+                        //Add the actual rgb colors of the pixels
                         var newR = currentVoxel.red / this.colorScale;
                         var newG = currentVoxel.green / this.colorScale;
                         var newB = currentVoxel.blue / this.colorScale;
 
-                        var newColor = vec4(newR, newG, newB);
-                        console.log(JSON.stringify(newColor));
+                        var newColor = vec4(newR, newG, newB, 1.0);
 
                         for (var times = 0; times < 36; times++) {
                             this.cache.colors.push(newColor);
+                        }
+
+                        //Add some rgb values equal to the postion of the center of the voxel
+                        //This is used when picking voxels to determine the face to add to
+                        newR = i;
+                        newG = j;
+                        newB = k;
+
+                        for (times = 0; times < 36; times++) {
+                            var alphaTest = 0;
+
+                            if (times < 6) {
+                                alphaTest = 0.1;
+                            }
+                            else if (times < 12) {
+                                alphaTest = 0.2;
+                            }
+                            else if (times < 18) {
+                                alphaTest = 0.3;
+                            }
+                            else if (times < 24) {
+                                alphaTest = 0.3;
+                            }
+                            else if (times < 30) {
+                                alphaTest = 0.4;
+                            }
+                            else if (times < 36) {
+                                alphaTest = 0.5;
+                            }
+
+                            newColor = vec4(newR, newG, newB, alphaTest);
+                            this.cache.pickingColors.push(newColor);
                         }
                     }
                 }
