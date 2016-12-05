@@ -28,7 +28,7 @@ window.onload = function init()
 
             reader.readAsText(file);
         } else {
-            fileDisplayArea.innerText = "File not supported!"
+            fileDisplayArea.innerText = "File not supported!";
         }
     });
 
@@ -174,6 +174,20 @@ function reCalcIndex(color) {
     return Math.round( (color * 10) / 255 );
 }
 
+function hexToRgb(hex) {
+    var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+    hex = hex.replace(shorthandRegex, function(m, r, g, b) {
+        return r + r + g + g + b + b;
+    });
+
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+    } : null;
+}
+
 function pickRender(size, rMatrixLoc, picking, mouseX, mouseY, bufferIds) {
     sendRotationMatrix(rMatrixLoc);
 
@@ -221,8 +235,11 @@ function pickRender(size, rMatrixLoc, picking, mouseX, mouseY, bufferIds) {
         newX -= 1;
     }
 
+    var colorChoice = document.getElementById("colorChoice").value;
+    convertedColorChoice = hexToRgb(colorChoice);
+
     //Place the voxel in the world and rebuffer all of the vertices
-    model.placeVoxel(newX, newY, newZ, 1.0, 1.0, 1.0);
+    model.placeVoxel(newX, newY, newZ, convertedColorChoice.r, convertedColorChoice.g, convertedColorChoice.b);
 
     voxelData = model.to3DPoints();
 
@@ -234,4 +251,6 @@ function pickRender(size, rMatrixLoc, picking, mouseX, mouseY, bufferIds) {
 
     gl.bindBuffer( gl.ARRAY_BUFFER, bufferIds.pickColorBufferId );
     gl.bufferData( gl.ARRAY_BUFFER, flatten(voxelData.pickingColors), gl.STATIC_DRAW );
+
+    render(size, rMatrixLoc, picking);
 }
