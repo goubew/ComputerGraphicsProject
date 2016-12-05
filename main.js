@@ -11,6 +11,8 @@ var dragCount = 0;
 var deg_to_rad = Math.PI/180;
 var canvas;
 
+var bufferIds;
+
 window.onload = function init()
 {
     canvas = document.getElementById( "gl-canvas" );
@@ -82,7 +84,7 @@ window.onload = function init()
     gl.vertexAttribPointer( vPickColor, 4, gl.FLOAT, false, 0, 0 );
     gl.enableVertexAttribArray( vPickColor );
 
-    var bufferIds = {
+    bufferIds = {
         positionBufferId: positionBufferId,
         colorBufferId: colorBufferId,
         pickColorBufferId: pickColorBufferId
@@ -92,7 +94,7 @@ window.onload = function init()
     gl.enable(gl.DEPTH_TEST);
 
     d = 0;
-    p = 180 * deg_to_rad;
+    p = 10 * deg_to_rad;
     r = 0;
 
     var rMatrixLoc = gl.getUniformLocation( program, "rMatrix" );
