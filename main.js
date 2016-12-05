@@ -251,6 +251,4 @@ function pickRender(size, rMatrixLoc, picking, mouseX, mouseY, bufferIds) {
 
     gl.bindBuffer( gl.ARRAY_BUFFER, bufferIds.pickColorBufferId );
     gl.bufferData( gl.ARRAY_BUFFER, flatten(voxelData.pickingColors), gl.STATIC_DRAW );
-
-    render(size, rMatrixLoc, picking);
 }
