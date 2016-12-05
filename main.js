@@ -92,7 +92,7 @@ window.onload = function init()
     gl.enable(gl.DEPTH_TEST);
 
     d = 0;
-    p = 10 * deg_to_rad;
+    p = 180 * deg_to_rad;
     r = 0;
 
     var rMatrixLoc = gl.getUniformLocation( program, "rMatrix" );

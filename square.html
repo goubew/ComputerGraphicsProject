@@ -14,7 +14,8 @@ varying lowp vec4 fColor;
 void
 main()
 {
-    gl_Position = rMatrix * vPosition;
+    vec4 adjustedPosition = vec4(vPosition[0] - 0.5, vPosition[1] - 0.5, vPosition[2], vPosition[3]);
+    gl_Position = rMatrix * adjustedPosition;
 
     if (picking) {
         fColor = vPickColor;
