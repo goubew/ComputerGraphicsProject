@@ -122,6 +122,16 @@ VoxelGrid.prototype.calcCubeTriangles = function(voxel, x, y, z) {
     return dataPoints;
 };
 
+VoxelGrid.prototype.clear = function() {
+    for (var i = 0; i < 10; i++) {
+        for (var j = 0; j < 10; j++) {
+            for (var k = 0; k < 10; k++) {
+                this.data[i][j][k].state = false;
+            }
+        }
+    }
+}
+
 VoxelGrid.prototype.to3DPoints = function() {
     if (this.requiresCacheUpdate) {
         this.cache = {
