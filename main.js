@@ -17,23 +17,6 @@ window.onload = function init()
 {
     canvas = document.getElementById( "gl-canvas" );
 
-    fileInput.addEventListener('change', function(e) {
-        var file = fileInput.files[0];
-        var textType = /text.*/;
-
-        if (file.type.match(textType)) {
-            var reader = new FileReader();
-
-            reader.onload = function(e) {
-                loadModel(reader.result);
-            };
-
-            reader.readAsText(file);
-        } else {
-            fileDisplayArea.innerText = "File not supported!";
-        }
-    });
-
     gl = WebGLUtils.setupWebGL( canvas );
     if ( !gl ) { alert( "WebGL isn't available" ); }
 
@@ -150,6 +133,23 @@ window.onload = function init()
         }
         render(voxelData.positions.length, rMatrixLoc, picking);
     }
+
+    fileInput.addEventListener('change', function(e) {
+        var file = fileInput.files[0];
+        var textType = /text.*/;
+
+        if (file.type.match(textType)) {
+            var reader = new FileReader();
+
+            reader.onload = function(e) {
+                loadModel(reader.result, rMatrixLoc, picking);
+            };
+
+            reader.readAsText(file);
+        } else {
+            fileDisplayArea.innerText = "File not supported!";
+        }
+    });
 };
 
 function sendRotationMatrix(rMatrixLoc) {
@@ -255,15 +255,28 @@ function pickRender(size, rMatrixLoc, picking, mouseX, mouseY, bufferIds) {
     gl.bufferData( gl.ARRAY_BUFFER, flatten(voxelData.pickingColors), gl.STATIC_DRAW );
 }
 
-function loadModel(modelInput) {
+function loadModel(modelInput, rMatrixLoc, picking) {
 
     model.clear();
 
-    console.log(modelInput);
+    var lines = modelInput.split('\n');
+
+    for (var i=0; i<lines.length; i++) {
+        var line = lines[i];
+        line = line.replace(" ", "");
+        inputs = line.split(",");
+
+        if (inputs.length == 6) {
+
+            for (var j = 0; j<inputs.length; j++) {
+                inputs[j] = parseFloat(inputs[j]);
+            }
+            model.placeVoxel(inputs[0], inputs[1], inputs[2], inputs[3], inputs[4], inputs[5])
+        }
+    }
 
     voxelData = model.to3DPoints();
 
-    console.log(JSON.stringify(voxelData));
 
     gl.bindBuffer( gl.ARRAY_BUFFER, bufferIds.positionBufferId );
     gl.bufferData( gl.ARRAY_BUFFER, flatten(voxelData.positions), gl.STATIC_DRAW );
@@ -273,4 +286,6 @@ function loadModel(modelInput) {
 
     gl.bindBuffer( gl.ARRAY_BUFFER, bufferIds.pickColorBufferId );
     gl.bufferData( gl.ARRAY_BUFFER, flatten(voxelData.pickingColors), gl.STATIC_DRAW );
+
+    render(voxelData.positions.length, rMatrixLoc, picking);
 }
