@@ -216,3 +216,15 @@ VoxelGrid.prototype.SaveModel = function() {
 
     return modelOut;
 };
+
+VoxelGrid.prototype.toggle = function(x, y, z) {
+    this.data[x][y][z].toggle();
+    this.requiresCacheUpdate = true;
+};
+
+VoxelGrid.prototype.setZoom = function(newZoom) {
+    if (newZoom >= 1) {
+        this.voxelScale = newZoom;
+        this.requiresCacheUpdate = true;
+    }
+};

@@ -8,13 +8,14 @@ attribute vec4 vColor;
 attribute vec4 vPickColor;
 uniform mat4 rMatrix;
 uniform bool picking;
+uniform float offset;
 
 varying lowp vec4 fColor;
 
 void
 main()
 {
-    vec4 adjustedPosition = vec4(vPosition[0] - 0.5, vPosition[1] - 0.5, vPosition[2], vPosition[3]);
+    vec4 adjustedPosition = vec4(vPosition[0] - offset, vPosition[1] - offset, vPosition[2], vPosition[3]);
     gl_Position = rMatrix * adjustedPosition;
 
     if (picking) {
@@ -46,10 +47,18 @@ main()
 </head>
 
 <body>
-<p>William Goubeaux and Anthony LaRosa</p>
 <canvas id="gl-canvas" width="512" height="512">
 Oops ... your browser doesn't support the HTML5 canvas element
 </canvas>
+<p>William Goubeaux and Anthony LaRosa</p>
+<h3>Operational Instructions</h3>
+<ul>
+    <li>Drag with the mouse to rotate</li>
+    <li>Hold down Shift and click to place a voxel</li>
+    <li>Hold down meta (Windows) and click to remove a voxel</li>
+    <li>Scroll with the mouse wheel to zoom</li>
+    <li>Color and i/o options are below</li>
+</ul>
 <div>
     <p>Voxel Color</p>
     <input id ="colorChoice"  type="color" name="favcolor">

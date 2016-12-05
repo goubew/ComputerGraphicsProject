@@ -77,17 +77,43 @@ window.onload = function init()
     gl.enable(gl.DEPTH_TEST);
 
     d = 0;
-    p = 10 * deg_to_rad;
+    p = 180 * deg_to_rad;
     r = 0;
 
     var rMatrixLoc = gl.getUniformLocation( program, "rMatrix" );
     var picking = gl.getUniformLocation( program, "picking");
+    var offset = gl.getUniformLocation( program, "offset" );
+
+    gl.uniform1f(offset, 0.5);
 
     canvas.addEventListener("mousedown", doMouseDown, false);
+    canvas.addEventListener("wheel", doWheelScroll, false);
 
     render(voxelData.positions.length, rMatrixLoc, picking);
 
     /* Event Declarations */
+    function doWheelScroll(evt) {
+        //If scroll Down
+        if (evt.deltaY < 0) {
+            model.setZoom(model.voxelScale - 1);
+        }
+        else {
+            model.setZoom(model.voxelScale + 1);
+        }
+        gl.uniform1f(offset, 5/model.voxelScale);
+        voxelData = model.to3DPoints();
+
+        gl.bindBuffer( gl.ARRAY_BUFFER, bufferIds.positionBufferId );
+        gl.bufferData( gl.ARRAY_BUFFER, flatten(voxelData.positions), gl.STATIC_DRAW );
+
+        gl.bindBuffer( gl.ARRAY_BUFFER, bufferIds.colorBufferId );
+        gl.bufferData( gl.ARRAY_BUFFER, flatten(voxelData.colors), gl.STATIC_DRAW );
+
+        gl.bindBuffer( gl.ARRAY_BUFFER, bufferIds.pickColorBufferId );
+        gl.bufferData( gl.ARRAY_BUFFER, flatten(voxelData.pickingColors), gl.STATIC_DRAW );
+
+        render(voxelData.positions.length, rMatrixLoc, picking);
+    }
     function doMouseDown(evt) {
         if (dragging)
            return;
@@ -101,7 +127,11 @@ window.onload = function init()
         var coly = canvas.height - prevy;
 
         if (evt.shiftKey) {
-            pickRender(voxelData.positions.length, rMatrixLoc, picking, colx, coly, bufferIds);
+            pickRender(voxelData.positions.length, rMatrixLoc, picking, colx, coly);
+        }
+
+        else if (evt.metaKey) {
+            removeRender(voxelData.positions.length, rMatrixLoc, picking, colx, coly);
         }
         dragging = true;
         document.addEventListener("mousemove", doMouseDrag, false);
@@ -190,7 +220,37 @@ function hexToRgb(hex) {
     } : null;
 }
 
-function pickRender(size, rMatrixLoc, picking, mouseX, mouseY, bufferIds) {
+function removeRender(size, rMatrixLoc, picking, mouseX, mouseY) {
+    sendRotationMatrix(rMatrixLoc);
+
+    gl.uniform1i(picking, 1);
+
+    gl.clear( gl.COLOR_BUFFER_BIT );
+    gl.drawArrays( gl.TRIANGLES, 0, size);
+
+    var color = new Uint8Array(4);
+    gl.readPixels(mouseX, mouseY, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, color);
+
+    var reX = reCalcIndex(color[0]);
+    var reY = reCalcIndex(color[1]);
+    var reZ = reCalcIndex(color[2]);
+    var reFace = reCalcIndex(color[3]);
+
+    model.toggle(reX, reY, reZ);
+
+    voxelData = model.to3DPoints();
+
+    gl.bindBuffer( gl.ARRAY_BUFFER, bufferIds.positionBufferId );
+    gl.bufferData( gl.ARRAY_BUFFER, flatten(voxelData.positions), gl.STATIC_DRAW );
+
+    gl.bindBuffer( gl.ARRAY_BUFFER, bufferIds.colorBufferId );
+    gl.bufferData( gl.ARRAY_BUFFER, flatten(voxelData.colors), gl.STATIC_DRAW );
+
+    gl.bindBuffer( gl.ARRAY_BUFFER, bufferIds.pickColorBufferId );
+    gl.bufferData( gl.ARRAY_BUFFER, flatten(voxelData.pickingColors), gl.STATIC_DRAW );
+}
+
+function pickRender(size, rMatrixLoc, picking, mouseX, mouseY) {
     sendRotationMatrix(rMatrixLoc);
 
     gl.uniform1i(picking, 1);
@@ -271,7 +331,7 @@ function loadModel(modelInput, rMatrixLoc, picking) {
             for (var j = 0; j<inputs.length; j++) {
                 inputs[j] = parseFloat(inputs[j]);
             }
-            model.placeVoxel(inputs[0], inputs[1], inputs[2], inputs[3], inputs[4], inputs[5])
+            model.placeVoxel(inputs[0], inputs[1], inputs[2], inputs[3], inputs[4], inputs[5]);
         }
     }
 
