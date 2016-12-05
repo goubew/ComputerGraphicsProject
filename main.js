@@ -26,7 +26,7 @@ window.onload = function init()
 
             reader.onload = function(e) {
                 loadModel(reader.result);
-            }
+            };
 
             reader.readAsText(file);
         } else {

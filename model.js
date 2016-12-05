@@ -130,7 +130,8 @@ VoxelGrid.prototype.clear = function() {
             }
         }
     }
-}
+    this.requiresCacheUpdate = true;
+};
 
 VoxelGrid.prototype.to3DPoints = function() {
     if (this.requiresCacheUpdate) {
