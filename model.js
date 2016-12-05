@@ -199,3 +199,20 @@ VoxelGrid.prototype.to3DPoints = function() {
     }
     return this.cache;
 };
+
+VoxelGrid.prototype.SaveModel = function() {
+    var modelOut = "";
+    for (var i = 0; i < 10; i++) {
+        for (var j = 0; j < 10; j++) {
+            for (var k = 0; k < 10; k++) {
+                var currentVoxel = this.data[i][j][k];
+                if (currentVoxel.state) {
+                    modelOut += i + "," + j + "," + k + "," + currentVoxel.red + "," + currentVoxel.green + "," + currentVoxel.blue;
+                    modelOut += "\n";
+                }
+            }
+        }
+    }
+
+    return modelOut;
+};
