@@ -144,7 +144,7 @@ VoxelGrid.prototype.to3DPoints = function() {
             for (var j = 0; j < 10; j++) {
                 for (var k = 0; k < 10; k++) {
                     var currentVoxel = this.data[i][j][k];
-                    if (currentVoxel.state) {
+                    if (currentVoxel.state == true) {
                         //Write out the triangles that make up the voxel at that point
                         this.cache.positions = this.cache.positions.concat(this.calcCubeTriangles(currentVoxel, i, j, k));
 

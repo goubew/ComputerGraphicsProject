@@ -254,3 +254,23 @@ function pickRender(size, rMatrixLoc, picking, mouseX, mouseY, bufferIds) {
     gl.bindBuffer( gl.ARRAY_BUFFER, bufferIds.pickColorBufferId );
     gl.bufferData( gl.ARRAY_BUFFER, flatten(voxelData.pickingColors), gl.STATIC_DRAW );
 }
+
+function loadModel(modelInput) {
+
+    model.clear();
+
+    console.log(modelInput);
+
+    voxelData = model.to3DPoints();
+
+    console.log(JSON.stringify(voxelData));
+
+    gl.bindBuffer( gl.ARRAY_BUFFER, bufferIds.positionBufferId );
+    gl.bufferData( gl.ARRAY_BUFFER, flatten(voxelData.positions), gl.STATIC_DRAW );
+
+    gl.bindBuffer( gl.ARRAY_BUFFER, bufferIds.colorBufferId );
+    gl.bufferData( gl.ARRAY_BUFFER, flatten(voxelData.colors), gl.STATIC_DRAW );
+
+    gl.bindBuffer( gl.ARRAY_BUFFER, bufferIds.pickColorBufferId );
+    gl.bufferData( gl.ARRAY_BUFFER, flatten(voxelData.pickingColors), gl.STATIC_DRAW );
+}
