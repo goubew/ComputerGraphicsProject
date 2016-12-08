@@ -130,7 +130,7 @@ window.onload = function init()
             pickRender(voxelData.positions.length, rMatrixLoc, picking, colx, coly);
         }
 
-        else if (evt.metaKey) {
+        else if (evt.metaKey || evt.altKey) {
             removeRender(voxelData.positions.length, rMatrixLoc, picking, colx, coly);
         }
         dragging = true;
